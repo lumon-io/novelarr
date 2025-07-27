@@ -1,0 +1,13 @@
+services:
+  novelarr:
+    build: .
+    container_name: novelarr
+    environment:
+      - READARR_URL=http://192.168.1.4:8787
+      - READARR_API_KEY=31a0ae98e92b445f982be81c8f41ac30
+      - JWT_SECRET=change-me-in-production
+    volumes:
+      - ./data:/config
+    ports:
+      - "8096:8096"
+    network_mode: bridge
