@@ -20,19 +20,52 @@
         <span v-if="book.leechers !== undefined" class="ml-1">L: {{ book.leechers }}</span>
         <span v-if="book.indexer" class="ml-2">[{{ book.indexer }}]</span>
       </div>
-      <button 
-        @click="$emit('request', book)"
-        :disabled="requesting || book.source !== 'Readarr'"
-        class="w-full bg-blue-500 text-white py-2 px-4 rounded hover:bg-blue-600 disabled:bg-gray-400"
-      >
-        {{ book.source !== 'Readarr' ? 'Manual Download Only' : (requesting ? 'Requesting...' : 'Request') }}
-      </button>
+      
+      <!-- Kavita status badge -->
+      <div v-if="book.inKavita" class="mb-3">
+        <span class="inline-flex items-center px-2.5 py-0.5 rounded-full text-xs font-medium bg-purple-100 text-purple-800">
+          <svg class="mr-1.5 h-2 w-2 text-purple-400" fill="currentColor" viewBox="0 0 8 8">
+            <circle cx="4" cy="4" r="3" />
+          </svg>
+          Available in Kavita
+        </span>
+      </div>
+      
+      <div class="space-y-2">
+        <!-- Request/Download button -->
+        <button 
+          v-if="!book.inKavita"
+          @click="$emit('request', book)"
+          :disabled="requesting || book.source !== 'Readarr'"
+          class="w-full bg-blue-500 text-white py-2 px-4 rounded hover:bg-blue-600 disabled:bg-gray-400"
+        >
+          {{ book.source !== 'Readarr' ? 'Manual Download Only' : (requesting ? 'Requesting...' : 'Request') }}
+        </button>
+        
+        <!-- Open in Kavita button -->
+        <button
+          v-if="book.inKavita && book.kavitaUrl"
+          @click="openInKavita"
+          class="w-full bg-purple-500 text-white py-2 px-4 rounded hover:bg-purple-600"
+        >
+          Open in Kavita
+        </button>
+        
+        <!-- Read now button (for books in Kavita) -->
+        <button
+          v-else-if="book.inKavita"
+          @click="$emit('read', book)"
+          class="w-full bg-green-500 text-white py-2 px-4 rounded hover:bg-green-600"
+        >
+          Read Now
+        </button>
+      </div>
     </div>
   </div>
 </template>
 
 <script setup>
-defineProps({
+const props = defineProps({
   book: {
     type: Object,
     required: true
@@ -43,7 +76,7 @@ defineProps({
   }
 })
 
-defineEmits(['request'])
+defineEmits(['request', 'read'])
 
 const getSourceClass = (source) => {
   switch (source) {
@@ -55,6 +88,12 @@ const getSourceClass = (source) => {
       return 'bg-purple-100 text-purple-800'
     default:
       return 'bg-gray-100 text-gray-800'
+  }
+}
+
+const openInKavita = () => {
+  if (props.book.kavitaUrl) {
+    window.open(props.book.kavitaUrl, '_blank')
   }
 }
 </script>

@@ -16,12 +16,20 @@ function initDatabase() {
   db = new Database(config.dbPath);
   db.pragma('journal_mode = WAL');
   
-  // Run migrations
-  const migration = fs.readFileSync(
-    path.join(__dirname, 'migrations', '001_initial.sql'), 
-    'utf8'
-  );
-  db.exec(migration);
+  // Run all migrations in order
+  const migrationsDir = path.join(__dirname, 'migrations');
+  const migrationFiles = fs.readdirSync(migrationsDir)
+    .filter(f => f.endsWith('.sql'))
+    .sort();
+  
+  for (const file of migrationFiles) {
+    console.log(`Running migration: ${file}`);
+    const migration = fs.readFileSync(
+      path.join(migrationsDir, file),
+      'utf8'
+    );
+    db.exec(migration);
+  }
   
   console.log('Database initialized at:', config.dbPath);
 }

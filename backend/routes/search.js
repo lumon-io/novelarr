@@ -3,6 +3,7 @@ const router = express.Router();
 const readarr = require('../services/readarr');
 const jackett = require('../services/jackett');
 const prowlarr = require('../services/prowlarr');
+const kavita = require('../services/kavita');
 const { requireAuth } = require('../middleware/auth');
 
 router.get('/', requireAuth, async (req, res) => {
@@ -90,13 +91,32 @@ router.get('/', requireAuth, async (req, res) => {
     });
   }
 
+  // Check Kavita library status if enabled
+  if (kavita.enabled && results.length > 0) {
+    try {
+      kavita.updateConfig();
+      // Check each book in Kavita
+      const kavitaChecks = await Promise.all(
+        results.map(async (book) => {
+          const inKavita = await kavita.checkBookExists(book.title, book.author);
+          return { ...book, inKavita };
+        })
+      );
+      results = kavitaChecks;
+    } catch (error) {
+      console.error('Kavita check error:', error.message);
+      // Continue without Kavita status
+    }
+  }
+
   res.json({ 
     results,
     errors: errors.length > 0 ? errors : undefined,
     sources: {
       readarr: true,
       jackett: jackett.enabled,
-      prowlarr: prowlarr.enabled
+      prowlarr: prowlarr.enabled,
+      kavita: kavita.enabled
     }
   });
 });
@@ -105,6 +125,7 @@ router.get('/', requireAuth, async (req, res) => {
 router.get('/sources', requireAuth, async (req, res) => {
   jackett.updateConfig();
   prowlarr.updateConfig();
+  kavita.updateConfig();
   
   const sources = {
     readarr: {
@@ -118,6 +139,10 @@ router.get('/sources', requireAuth, async (req, res) => {
     prowlarr: {
       enabled: prowlarr.enabled,
       connected: prowlarr.enabled ? await prowlarr.testConnection() : false
+    },
+    kavita: {
+      enabled: kavita.enabled,
+      connected: kavita.enabled ? await kavita.testConnection() : false
     }
   };
   

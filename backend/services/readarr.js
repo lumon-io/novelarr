@@ -1,19 +1,36 @@
 const axios = require('axios');
-const config = require('../config');
+const { getDb } = require('../db/database');
 
 class ReadarrService {
   constructor() {
-    if (!config.readarr.apiKey) {
-      console.warn('No Readarr API key configured');
-    }
+    this.updateConfig();
+  }
+
+  updateConfig() {
+    const db = getDb();
+    const settings = db.prepare(
+      'SELECT key, value FROM settings WHERE key IN (?, ?, ?, ?)'
+    ).all('readarr_url', 'readarr_api_key', 'readarr_quality_profile', 'readarr_root_folder');
     
-    this.client = axios.create({
-      baseURL: config.readarr.url,
-      headers: {
-        'X-Api-Key': config.readarr.apiKey
-      },
-      timeout: 10000
-    });
+    const config = {};
+    settings.forEach(s => config[s.key] = s.value);
+    
+    this.url = config.readarr_url || '';
+    this.apiKey = config.readarr_api_key || '';
+    this.qualityProfile = parseInt(config.readarr_quality_profile) || 1;
+    this.rootFolder = config.readarr_root_folder || '';
+    
+    if (this.url && this.apiKey) {
+      this.client = axios.create({
+        baseURL: this.url,
+        headers: {
+          'X-Api-Key': this.apiKey
+        },
+        timeout: 10000
+      });
+    } else {
+      this.client = null;
+    }
   }
 
   async search(query) {

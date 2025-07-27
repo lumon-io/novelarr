@@ -176,6 +176,119 @@
             </div>
           </div>
         </div>
+        
+        <!-- Kavita Settings -->
+        <div class="border-t pt-6 mt-6">
+          <h3 class="text-lg font-semibold mb-4">Kavita Integration</h3>
+          
+          <div class="space-y-4">
+            <div>
+              <label class="flex items-center">
+                <input
+                  v-model="kavitaEnabled"
+                  type="checkbox"
+                  class="mr-2"
+                >
+                <span class="text-sm font-medium text-gray-700">
+                  Enable Kavita Integration
+                </span>
+              </label>
+              <p class="text-sm text-gray-500 mt-1">Check if books exist in your Kavita library</p>
+            </div>
+            
+            <div v-if="kavitaEnabled">
+              <label class="block text-sm font-medium text-gray-700 mb-2">
+                Kavita URL
+              </label>
+              <input
+                v-model="settings.kavita_url.value"
+                type="text"
+                placeholder="http://192.168.1.4:5000"
+                class="w-full px-3 py-2 border border-gray-300 rounded focus:outline-none focus:ring-2 focus:ring-blue-500"
+              >
+              <p class="text-sm text-gray-500 mt-1">Your Kavita server URL</p>
+            </div>
+            
+            <div v-if="kavitaEnabled">
+              <label class="block text-sm font-medium text-gray-700 mb-2">
+                Kavita API Key
+              </label>
+              <input
+                v-model="settings.kavita_api_key.value"
+                type="password"
+                class="w-full px-3 py-2 border border-gray-300 rounded focus:outline-none focus:ring-2 focus:ring-blue-500"
+              >
+              <p class="text-sm text-gray-500 mt-1">Found in Kavita Settings → Security → API Keys</p>
+            </div>
+            
+            <div v-if="kavitaEnabled">
+              <button
+                @click="testKavitaConnection"
+                :disabled="testingKavita"
+                class="px-4 py-2 bg-green-500 text-white rounded hover:bg-green-600 disabled:bg-gray-400"
+              >
+                {{ testingKavita ? 'Testing...' : 'Test Connection' }}
+              </button>
+              <span v-if="kavitaTestResult" class="ml-3" :class="kavitaTestResult.success ? 'text-green-600' : 'text-red-600'">
+                {{ kavitaTestResult.message }}
+              </span>
+            </div>
+          </div>
+        </div>
+        
+        <!-- Readarr Settings -->
+        <div class="border-t pt-6 mt-6">
+          <h3 class="text-lg font-semibold mb-4">Readarr Integration</h3>
+          
+          <div class="space-y-4">
+            <div>
+              <label class="block text-sm font-medium text-gray-700 mb-2">
+                Readarr URL
+              </label>
+              <input
+                v-model="settings.readarr_url.value"
+                type="text"
+                placeholder="http://192.168.1.4:8787"
+                class="w-full px-3 py-2 border border-gray-300 rounded focus:outline-none focus:ring-2 focus:ring-blue-500"
+              >
+            </div>
+            
+            <div>
+              <label class="block text-sm font-medium text-gray-700 mb-2">
+                Readarr API Key
+              </label>
+              <input
+                v-model="settings.readarr_api_key.value"
+                type="password"
+                class="w-full px-3 py-2 border border-gray-300 rounded focus:outline-none focus:ring-2 focus:ring-blue-500"
+              >
+            </div>
+            
+            <div>
+              <label class="block text-sm font-medium text-gray-700 mb-2">
+                Quality Profile ID
+              </label>
+              <input
+                v-model="settings.readarr_quality_profile.value"
+                type="text"
+                placeholder="1"
+                class="w-full px-3 py-2 border border-gray-300 rounded focus:outline-none focus:ring-2 focus:ring-blue-500"
+              >
+            </div>
+            
+            <div>
+              <label class="block text-sm font-medium text-gray-700 mb-2">
+                Root Folder Path
+              </label>
+              <input
+                v-model="settings.readarr_root_folder.value"
+                type="text"
+                placeholder="/books"
+                class="w-full px-3 py-2 border border-gray-300 rounded focus:outline-none focus:ring-2 focus:ring-blue-500"
+              >
+            </div>
+          </div>
+        </div>
       </div>
       
       <div class="mt-8 flex justify-end space-x-4">
@@ -255,6 +368,40 @@ const prowlarrEnabled = computed({
     }
   }
 })
+
+const kavitaEnabled = computed({
+  get: () => settings.value.kavita_enabled?.value === 'true',
+  set: (val) => {
+    if (settings.value.kavita_enabled) {
+      settings.value.kavita_enabled.value = val ? 'true' : 'false'
+    }
+  }
+})
+
+const testingKavita = ref(false)
+const kavitaTestResult = ref(null)
+
+const testKavitaConnection = async () => {
+  testingKavita.value = true
+  kavitaTestResult.value = null
+  
+  try {
+    // Save current settings first
+    await saveSettings()
+    
+    // Test connection
+    const response = await api.get('/search/sources')
+    if (response.data.kavita && response.data.kavita.connected) {
+      kavitaTestResult.value = { success: true, message: 'Connection successful!' }
+    } else {
+      kavitaTestResult.value = { success: false, message: 'Connection failed' }
+    }
+  } catch (error) {
+    kavitaTestResult.value = { success: false, message: 'Connection failed: ' + error.message }
+  } finally {
+    testingKavita.value = false
+  }
+}
 
 const fetchSettings = async () => {
   try {
