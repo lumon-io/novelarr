@@ -16,7 +16,7 @@ A Docker-first book request management system with multi-source search capabilit
 
 1. Clone the repository:
 ```bash
-git clone https://github.com/yourusername/novelarr.git
+git clone https://github.com/lumon-io/novelarr.git
 cd novelarr
 ```
 
