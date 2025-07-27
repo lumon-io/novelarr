@@ -3,7 +3,9 @@ const { getDb } = require('../db/database');
 
 class JackettService {
   constructor() {
-    this.updateConfig();
+    this.enabled = false;
+    this.url = '';
+    this.apiKey = '';
   }
 
   updateConfig() {

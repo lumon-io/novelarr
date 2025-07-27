@@ -5,12 +5,15 @@ A Docker-first book request management system with multi-source search capabilit
 ## Features
 
 - 🔍 **Multi-Source Search**: Search books across Readarr, Jackett, and Prowlarr simultaneously
+- 📚 **Kavita Integration**: Check library status and open books directly in Kavita
 - 👥 **Multi-User Support**: Role-based access control (Admin/User)
 - 🔐 **JWT Authentication**: Secure token-based authentication
+- 📖 **Goodreads Integration**: Sync your reading history and shelves
+- 🤖 **AI Recommendations**: Get personalized book recommendations powered by OpenAI
 - 🎨 **Modern UI**: Vue 3 with Tailwind CSS
 - 🐳 **Docker First**: Single container deployment
 - 📱 **Responsive Design**: Works on desktop and mobile
-- ⚙️ **Admin Panel**: Configure all integrations from the UI
+- ⚙️ **Web-Based Configuration**: Configure all settings through the admin panel - no file editing required!
 
 ## Quick Start
 
@@ -33,21 +36,35 @@ docker-compose up --build
 
 ## Configuration
 
-### Service Integration
+All configuration is done through the web interface - no file editing required!
 
-Configure these services in the Admin Settings panel:
+### Admin Settings Panel
 
-- **Readarr**: Your Readarr instance URL and API key
-- **Jackett**: Your Jackett instance URL and API key  
-- **Prowlarr**: Your Prowlarr instance URL and API key
+Navigate to Settings (admin only) to configure:
 
-### Environment Variables
+#### Service Integrations
+- **Readarr**: URL and API key for book downloads
+- **Jackett**: URL and API key for torrent indexing (optional)
+- **Prowlarr**: URL and API key for unified indexing (optional)
+- **Kavita**: URL and API key for library integration (optional)
 
-Create a `.env` file:
+#### Goodreads & AI
+- **Goodreads OAuth**: API key, secret, and callback URL
+- **OpenAI**: API key and model selection for AI recommendations
+
+#### General Settings
+- Registration enable/disable
+- Default user role
+- Request limits and approval settings
+
+### Environment Variables (Optional)
+
+Only these core settings use environment variables:
 ```env
-JWT_SECRET=your-secret-key
-DB_PATH=/config/novelarr.db
-PORT=8096
+JWT_SECRET=your-secret-key      # Security token secret
+SESSION_SECRET=your-secret      # Session encryption
+DB_PATH=/config/novelarr.db     # Database location
+PORT=8096                       # Server port
 ```
 
 ## Development
@@ -69,6 +86,20 @@ npm run dev
 ## API Documentation
 
 See [FRONTEND-BACKEND-SUMMARY.md](./FRONTEND-BACKEND-SUMMARY.md) for detailed API documentation.
+
+## Usage Guide
+
+### For Users
+1. **Search**: Use the search page to find books across all configured sources
+2. **Recommendations**: Connect Goodreads to get AI-powered book suggestions
+3. **Library**: Browse your synced Goodreads reading history
+4. **Requests**: Track your book requests and download status
+
+### For Admins
+1. Go to Settings to configure all integrations
+2. Test each connection before saving
+3. Manage users and their permissions
+4. Monitor all user requests
 
 ## Upcoming Features
 

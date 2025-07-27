@@ -289,6 +289,99 @@
             </div>
           </div>
         </div>
+        
+        <!-- Goodreads & AI Settings -->
+        <div class="border-t pt-6 mt-6">
+          <h3 class="text-lg font-semibold mb-4">Goodreads Integration</h3>
+          
+          <div class="space-y-4 mb-6">
+            <div>
+              <label class="block text-sm font-medium text-gray-700 mb-2">
+                Goodreads API Key
+              </label>
+              <input
+                v-model="settings.goodreads_api_key.value"
+                type="text"
+                placeholder="Your Goodreads API key"
+                class="w-full px-3 py-2 border border-gray-300 rounded focus:outline-none focus:ring-2 focus:ring-blue-500"
+              >
+              <p class="text-sm text-gray-500 mt-1">Get from Goodreads Developer Portal</p>
+            </div>
+            
+            <div>
+              <label class="block text-sm font-medium text-gray-700 mb-2">
+                Goodreads API Secret
+              </label>
+              <input
+                v-model="settings.goodreads_api_secret.value"
+                type="password"
+                class="w-full px-3 py-2 border border-gray-300 rounded focus:outline-none focus:ring-2 focus:ring-blue-500"
+              >
+              <p class="text-sm text-gray-500 mt-1">Keep this secret!</p>
+            </div>
+            
+            <div>
+              <label class="block text-sm font-medium text-gray-700 mb-2">
+                OAuth Callback URL
+              </label>
+              <input
+                v-model="settings.goodreads_callback_url.value"
+                type="text"
+                placeholder="http://your-domain.com/api/goodreads/callback"
+                class="w-full px-3 py-2 border border-gray-300 rounded focus:outline-none focus:ring-2 focus:ring-blue-500"
+              >
+              <p class="text-sm text-gray-500 mt-1">Update this with your actual domain</p>
+            </div>
+          </div>
+          
+          <GoodreadsConnect />
+          
+          <h3 class="text-lg font-semibold mb-4 mt-8">AI Recommendations</h3>
+          
+          <div class="space-y-4">
+            <div>
+              <label class="flex items-center">
+                <input
+                  v-model="aiRecommendationsEnabled"
+                  type="checkbox"
+                  class="mr-2"
+                >
+                <span class="text-sm font-medium text-gray-700">
+                  Enable AI Recommendations
+                </span>
+              </label>
+              <p class="text-sm text-gray-500 mt-1">Use OpenAI to generate personalized book recommendations</p>
+            </div>
+            
+            <div v-if="aiRecommendationsEnabled">
+              <label class="block text-sm font-medium text-gray-700 mb-2">
+                OpenAI API Key
+              </label>
+              <input
+                v-model="settings.openai_api_key.value"
+                type="password"
+                placeholder="sk-..."
+                class="w-full px-3 py-2 border border-gray-300 rounded focus:outline-none focus:ring-2 focus:ring-blue-500"
+              >
+              <p class="text-sm text-gray-500 mt-1">Get from platform.openai.com</p>
+            </div>
+            
+            <div v-if="aiRecommendationsEnabled">
+              <label class="block text-sm font-medium text-gray-700 mb-2">
+                AI Model
+              </label>
+              <select
+                v-model="settings.openai_model.value"
+                class="w-full px-3 py-2 border border-gray-300 rounded focus:outline-none focus:ring-2 focus:ring-blue-500"
+              >
+                <option value="gpt-4-turbo-preview">GPT-4 Turbo (Recommended)</option>
+                <option value="gpt-4">GPT-4</option>
+                <option value="gpt-3.5-turbo">GPT-3.5 Turbo (Cheaper)</option>
+              </select>
+              <p class="text-sm text-gray-500 mt-1">Higher models provide better recommendations</p>
+            </div>
+          </div>
+        </div>
       </div>
       
       <div class="mt-8 flex justify-end space-x-4">
@@ -317,6 +410,7 @@
 <script setup>
 import { ref, computed, onMounted } from 'vue'
 import api from '../api'
+import GoodreadsConnect from '../components/GoodreadsConnect.vue'
 
 const settings = ref({})
 const loading = ref(true)
@@ -374,6 +468,15 @@ const kavitaEnabled = computed({
   set: (val) => {
     if (settings.value.kavita_enabled) {
       settings.value.kavita_enabled.value = val ? 'true' : 'false'
+    }
+  }
+})
+
+const aiRecommendationsEnabled = computed({
+  get: () => settings.value.ai_recommendations_enabled?.value === 'true',
+  set: (val) => {
+    if (settings.value.ai_recommendations_enabled) {
+      settings.value.ai_recommendations_enabled.value = val ? 'true' : 'false'
     }
   }
 })

@@ -3,7 +3,11 @@ const { getDb } = require('../db/database');
 
 class ReadarrService {
   constructor() {
-    this.updateConfig();
+    this.url = '';
+    this.apiKey = '';
+    this.qualityProfile = 1;
+    this.rootFolder = '';
+    this.client = null;
   }
 
   updateConfig() {

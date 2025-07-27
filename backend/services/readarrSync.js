@@ -7,7 +7,7 @@ const { getDb } = require('../db/database');
 class ReadarrSyncService {
   constructor() {
     this.syncInterval = null;
-    this.updateConfig();
+    this.initialized = false;
   }
 
   updateConfig() {
@@ -44,6 +44,17 @@ class ReadarrSyncService {
   }
 
   async startSync() {
+    // Initialize config on first start
+    if (!this.initialized) {
+      try {
+        this.updateConfig();
+        this.initialized = true;
+      } catch (error) {
+        console.error('Failed to initialize Readarr sync:', error.message);
+        return;
+      }
+    }
+
     if (!this.enabled || !this.client) {
       console.log('Readarr sync disabled or not configured');
       return;

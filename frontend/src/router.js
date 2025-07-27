@@ -29,6 +29,16 @@ const routes = [
     path: '/users',
     component: () => import('./views/Users.vue'),
     meta: { requiresAuth: true, requiresAdmin: true }
+  },
+  {
+    path: '/recommendations',
+    component: () => import('./views/RecommendationsView.vue'),
+    meta: { requiresAuth: true }
+  },
+  {
+    path: '/library',
+    component: () => import('./views/Library.vue'),
+    meta: { requiresAuth: true }
   }
 ]
 

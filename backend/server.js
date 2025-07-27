@@ -2,6 +2,7 @@ require('dotenv').config();
 const express = require('express');
 const cors = require('cors');
 const path = require('path');
+const session = require('express-session');
 const { initDatabase } = require('./db/database');
 const config = require('./config');
 const readarrSync = require('./services/readarrSync');
@@ -9,9 +10,42 @@ const readarrSync = require('./services/readarrSync');
 const app = express();
 
 // Middleware
-app.use(cors());
+app.use(cors({
+  origin: true,
+  credentials: true
+}));
 app.use(express.json());
 app.use(express.static(path.join(__dirname, 'public')));
+
+// Session for OAuth
+const getSessionSecret = () => {
+  try {
+    const db = getDb();
+    const result = db.prepare('SELECT value FROM settings WHERE key = ?').get('session_secret');
+    if (result && result.value) {
+      return result.value;
+    }
+    // Generate and save a new secret if none exists
+    const crypto = require('crypto');
+    const newSecret = crypto.randomBytes(32).toString('hex');
+    db.prepare('UPDATE settings SET value = ? WHERE key = ?').run(newSecret, 'session_secret');
+    return newSecret;
+  } catch (e) {
+    // Fallback during initial setup
+    return process.env.SESSION_SECRET || 'novelarr-secret-key-change-in-production';
+  }
+};
+
+app.use(session({
+  secret: getSessionSecret(),
+  resave: false,
+  saveUninitialized: false,
+  cookie: {
+    secure: process.env.NODE_ENV === 'production',
+    httpOnly: true,
+    maxAge: 24 * 60 * 60 * 1000 // 24 hours
+  }
+}));
 
 // Initialize database
 initDatabase();
@@ -23,6 +57,8 @@ app.use('/api/requests', require('./routes/requests'));
 app.use('/api/settings', require('./routes/settings'));
 app.use('/api/users', require('./routes/users'));
 app.use('/api/library', require('./routes/library'));
+app.use('/api/goodreads', require('./routes/goodreads'));
+app.use('/api/recommendations', require('./routes/recommendations'));
 
 // Health check
 app.get('/api/health', (req, res) => {

@@ -10,6 +10,12 @@
           <router-link to="/search" class="text-gray-600 hover:text-gray-800">
             Search
           </router-link>
+          <router-link to="/recommendations" class="text-gray-600 hover:text-gray-800">
+            Recommendations
+          </router-link>
+          <router-link to="/library" class="text-gray-600 hover:text-gray-800">
+            Library
+          </router-link>
           <router-link to="/requests" class="text-gray-600 hover:text-gray-800">
             My Requests
           </router-link>

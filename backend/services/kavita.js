@@ -3,7 +3,11 @@ const { getDb } = require('../db/database');
 
 class KavitaService {
   constructor() {
-    this.updateConfig();
+    this.enabled = false;
+    this.url = '';
+    this.apiKey = '';
+    this.jwtToken = null;
+    this.tokenExpiry = null;
   }
 
   updateConfig() {
