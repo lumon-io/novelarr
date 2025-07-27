@@ -1,0 +1,48 @@
+# Ensure text files use LF
+* text=auto eol=lf
+
+# Explicitly declare text files
+*.js text
+*.jsx text
+*.ts text
+*.tsx text
+*.vue text
+*.json text
+*.md text
+*.yml text
+*.yaml text
+*.html text
+*.css text
+*.scss text
+*.sh text
+*.sql text
+*.env.example text
+
+# Exclude from archive exports
+.gitignore export-ignore
+.gitattributes export-ignore
+.dockerignore export-ignore
+test.sh export-ignore
+*.log export-ignore
+*.tmp export-ignore
+
+# Mark binary files
+*.png binary
+*.jpg binary
+*.jpeg binary
+*.gif binary
+*.ico binary
+*.pdf binary
+*.zip binary
+*.tar binary
+*.gz binary
+*.db binary
+*.sqlite binary
+
+# Prevent committing certain files (as backup to .gitignore)
+*.env filter=gitignore
+.env.* filter=gitignore
+*secret* filter=gitignore
+*password* filter=gitignore
+*.key filter=gitignore
+*.pem filter=gitignore
