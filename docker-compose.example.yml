@@ -1,0 +1,65 @@
+version: '3.8'
+
+services:
+  novelarr:
+    image: novelarr:latest
+    # Or build from source:
+    # build: .
+    container_name: novelarr
+    environment:
+      - PUID=1000  # User ID
+      - PGID=1000  # Group ID
+      - TZ=America/New_York  # Your timezone
+      - NODE_ENV=production
+    volumes:
+      # REQUIRED: Configuration and database
+      - ./config:/app/data
+      
+      # MEDIA LIBRARIES - Where organized content is stored
+      # These should match your Readarr/media server paths
+      - /mnt/media/books:/media/books
+      - /mnt/media/audiobooks:/media/audiobooks
+      - /mnt/media/magazines:/media/magazines
+      - /mnt/media/comics:/media/comics
+      
+      # DOWNLOAD FOLDERS - Where content is initially downloaded
+      # These should match your download client paths
+      - /mnt/downloads/complete/books:/downloads/books
+      - /mnt/downloads/complete/audiobooks:/downloads/audiobooks
+      - /mnt/downloads/complete/magazines:/downloads/magazines
+      - /mnt/downloads/complete/comics:/downloads/comics
+      
+      # Optional: Calibre library for format conversion
+      # - /mnt/calibre:/calibre
+    ports:
+      - "8096:8096"
+    restart: unless-stopped
+    
+    # Network configuration - adjust based on your setup
+    networks:
+      - default
+    
+    # Optional: If you need to access other containers by name
+    # networks:
+    #   - media-network
+    
+    # Optional: Resource limits
+    # deploy:
+    #   resources:
+    #     limits:
+    #       cpus: '2'
+    #       memory: 2G
+    #     reservations:
+    #       cpus: '0.5'
+    #       memory: 512M
+
+# Optional: External network if sharing with other media containers
+# networks:
+#   media-network:
+#     external: true
+
+# Optional: Named volumes instead of bind mounts
+# volumes:
+#   novelarr-config:
+#   novelarr-media:
+#   novelarr-downloads:

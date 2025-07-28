@@ -5,27 +5,46 @@ A Docker-first book request management system with multi-source search capabilit
 ## Features
 
 - 🔍 **Multi-Source Search**: Search books across Readarr, Jackett, and Prowlarr simultaneously
-- 📚 **Kavita Integration**: Check library status and open books directly in Kavita
+- 📚 **Multi-Content Support**: Books, Audiobooks, Magazines, Comics, and Manga
+- 📖 **Kavita Integration**: Check library status and open books directly in Kavita
+- 📧 **Send to Kindle**: Email books directly to your Kindle device
 - 👥 **Multi-User Support**: Role-based access control (Admin/User)
 - 🔐 **JWT Authentication**: Secure token-based authentication
 - 📖 **Goodreads Integration**: Sync your reading history and shelves
 - 🤖 **AI Recommendations**: Get personalized book recommendations powered by OpenAI
 - 🎨 **Modern UI**: Vue 3 with Tailwind CSS
-- 🐳 **Docker First**: Single container deployment
+- 🐳 **Docker First**: Production-ready container with PUID/PGID support
 - 📱 **Responsive Design**: Works on desktop and mobile
 - ⚙️ **Web-Based Configuration**: Configure all settings through the admin panel - no file editing required!
 
 ## Quick Start
 
-1. Clone the repository:
-```bash
-git clone https://github.com/lumon-io/novelarr.git
-cd novelarr
+### Using Docker Compose (Recommended)
+
+1. Create a `docker-compose.yml` file:
+```yaml
+version: '3.8'
+
+services:
+  novelarr:
+    image: novelarr:latest
+    container_name: novelarr
+    environment:
+      - PUID=1000
+      - PGID=1000
+      - TZ=America/New_York
+    volumes:
+      - ./config:/app/data
+      - /path/to/media:/media
+      - /path/to/downloads:/downloads
+    ports:
+      - "8096:8096"
+    restart: unless-stopped
 ```
 
-2. Build and run with Docker:
+2. Start the container:
 ```bash
-docker-compose up --build
+docker-compose up -d
 ```
 
 3. Access the UI at `http://localhost:8096`
@@ -33,6 +52,8 @@ docker-compose up --build
 4. Default credentials:
    - Username: `admin`
    - Password: `admin123`
+
+See [DOCKER-DEPLOYMENT.md](DOCKER-DEPLOYMENT.md) for detailed deployment instructions.
 
 ## Configuration
 
@@ -106,6 +127,37 @@ See [FRONTEND-BACKEND-SUMMARY.md](./FRONTEND-BACKEND-SUMMARY.md) for detailed AP
 - 📧 Send to Kindle functionality
 - 📖 EPUB conversion for non-EPUB formats
 - 📨 SMTP email integration
+
+## Content Types
+
+Novelarr supports multiple content types, each with dedicated folder structures:
+
+- **📚 Books**: EPUB, MOBI, AZW3, PDF - integrated with Readarr
+- **🎧 Audiobooks**: M4B, MP3 - integrated with Readarr + audiobook profiles
+- **📰 Magazines**: PDF, EPUB - for periodicals and magazines
+- **🎨 Comics**: CBR, CBZ - can integrate with Mylar3
+- **📖 Manga**: CBZ, PDF - for manga collections
+
+## Send to Kindle
+
+Novelarr includes built-in Send to Kindle functionality:
+
+1. Configure SMTP settings in the admin panel
+2. Users add their Kindle email in their profile
+3. One-click send for any downloaded book
+4. Supports all Kindle-compatible formats
+
+## Docker Deployment
+
+Novelarr is designed for self-hosting with full support for:
+
+- **PUID/PGID**: Proper file permissions
+- **Volume Mapping**: Separate media, downloads, and config
+- **Multi-Architecture**: AMD64 and ARM64 support
+- **Health Checks**: Built-in container health monitoring
+- **Resource Limits**: Configurable CPU/memory constraints
+
+See [DOCKER-DEPLOYMENT.md](DOCKER-DEPLOYMENT.md) for complete deployment guide.
 
 ## License
 

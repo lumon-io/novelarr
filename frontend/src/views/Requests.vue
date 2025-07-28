@@ -15,13 +15,19 @@
         <thead class="bg-gray-50">
           <tr>
             <th class="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">
-              Book
+              Content
+            </th>
+            <th class="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">
+              Type
             </th>
             <th class="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">
               Status
             </th>
             <th class="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">
               Requested
+            </th>
+            <th class="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">
+              Actions
             </th>
           </tr>
         </thead>
@@ -45,12 +51,32 @@
               </div>
             </td>
             <td class="px-6 py-4 whitespace-nowrap">
+              <span class="px-2 inline-flex text-xs leading-5 font-semibold rounded-full bg-gray-100 text-gray-800 capitalize">
+                {{ request.content_type || 'books' }}
+              </span>
+            </td>
+            <td class="px-6 py-4 whitespace-nowrap">
               <span :class="getStatusClass(request.status)" class="px-2 inline-flex text-xs leading-5 font-semibold rounded-full">
                 {{ request.status }}
               </span>
             </td>
             <td class="px-6 py-4 whitespace-nowrap text-sm text-gray-500">
               {{ formatDate(request.requested_at) }}
+            </td>
+            <td class="px-6 py-4 whitespace-nowrap text-sm">
+              <div class="flex space-x-2">
+                <button
+                  v-if="request.download_status === 'completed' && request.file_path"
+                  @click="sendToKindle(request)"
+                  :disabled="sendingToKindle[request.id]"
+                  class="text-blue-600 hover:text-blue-900 disabled:opacity-50"
+                >
+                  {{ sendingToKindle[request.id] ? 'Sending...' : 'Send to Kindle' }}
+                </button>
+                <span v-else-if="request.download_status === 'downloading'" class="text-gray-500">
+                  Downloading... {{ request.download_progress }}%
+                </span>
+              </div>
             </td>
           </tr>
         </tbody>
@@ -65,6 +91,7 @@ import api from '../api'
 
 const requests = ref([])
 const loading = ref(true)
+const sendingToKindle = ref({})
 
 const getStatusClass = (status) => {
   switch (status) {
@@ -89,6 +116,35 @@ const fetchRequests = async () => {
     console.error('Failed to fetch requests:', error)
   } finally {
     loading.value = false
+  }
+}
+
+const sendToKindle = async (request) => {
+  // First check if user has Kindle email configured
+  try {
+    const kindleResponse = await api.get('/kindle/email')
+    if (!kindleResponse.data.kindle_email) {
+      alert('Please configure your Kindle email in your Profile settings first.')
+      return
+    }
+  } catch (error) {
+    console.error('Failed to check Kindle email:', error)
+    alert('Failed to check Kindle settings. Please try again.')
+    return
+  }
+
+  sendingToKindle.value[request.id] = true
+  
+  try {
+    // For now, we'll use the request ID to send the book
+    // The backend will need to map this to the actual book file
+    await api.post(`/kindle/send/${request.id}`)
+    alert(`Book sent to your Kindle!`)
+  } catch (error) {
+    console.error('Failed to send to Kindle:', error)
+    alert(error.response?.data?.error || 'Failed to send to Kindle. Please try again.')
+  } finally {
+    sendingToKindle.value[request.id] = false
   }
 }
 

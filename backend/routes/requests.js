@@ -8,9 +8,16 @@ const { requireAuth } = require('../middleware/auth');
 router.get('/', requireAuth, async (req, res) => {
   try {
     const db = getDb();
-    const requests = db.prepare(
-      'SELECT * FROM requests WHERE user_id = ? ORDER BY requested_at DESC'
-    ).all(req.userId);
+    const requests = db.prepare(`
+      SELECT r.*, 
+        d.status as download_status,
+        d.progress as download_progress,
+        d.file_path
+      FROM requests r
+      LEFT JOIN downloads d ON r.id = d.request_id
+      WHERE r.user_id = ? 
+      ORDER BY r.requested_at DESC
+    `).all(req.userId);
     
     res.json({ requests });
   } catch (error) {
@@ -21,7 +28,7 @@ router.get('/', requireAuth, async (req, res) => {
 
 // Create new request
 router.post('/', requireAuth, async (req, res) => {
-  const { goodreadsId, title, author, coverUrl } = req.body;
+  const { goodreadsId, title, author, coverUrl, contentType = 'books' } = req.body;
   
   if (!title || !author) {
     return res.status(400).json({ error: 'Title and author required' });
@@ -59,9 +66,9 @@ router.post('/', requireAuth, async (req, res) => {
     
     // Insert request
     const result = db.prepare(
-      `INSERT INTO requests (user_id, book_title, book_author, goodreads_id, cover_url, status, readarr_id)
-       VALUES (?, ?, ?, ?, ?, ?, ?)`
-    ).run(req.userId, title, author, goodreadsId, coverUrl, status, readarrId);
+      `INSERT INTO requests (user_id, book_title, book_author, goodreads_id, cover_url, status, readarr_id, content_type)
+       VALUES (?, ?, ?, ?, ?, ?, ?, ?)`
+    ).run(req.userId, title, author, goodreadsId, coverUrl, status, readarrId, contentType);
     
     db.prepare('COMMIT').run();
     

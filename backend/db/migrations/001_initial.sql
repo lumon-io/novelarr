@@ -42,6 +42,6 @@ INSERT OR IGNORE INTO settings (key, value, description) VALUES
     ('prowlarr_url', '', 'Prowlarr server URL'),
     ('prowlarr_api_key', '', 'Prowlarr API key');
 
--- Create default admin user (password: admin)
+-- Create default admin user (password: admin123)
 INSERT OR IGNORE INTO users (username, password, role) 
-VALUES ('admin', '$2b$10$YgHreYWYQ2gZydFdlW7UYejLQdHlCadH7stD8MR7uMJBI/BAzKKKy', 'admin');
+VALUES ('admin', '$2b$10$K3xVKKRp2A9ZJ0lzFt2OKuOHnNTUXMqKQlzlRzH9jqD.L.8vMJhBe', 'admin');

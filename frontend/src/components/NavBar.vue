@@ -30,6 +30,9 @@
           </template>
           
           <div class="flex items-center space-x-2">
+            <router-link to="/profile" class="text-gray-600 hover:text-gray-800">
+              Profile
+            </router-link>
             <span class="text-sm text-gray-500">{{ authStore.user?.username }}</span>
             <button @click="logout" class="text-gray-600 hover:text-gray-800">
               Logout

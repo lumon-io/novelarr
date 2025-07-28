@@ -3,7 +3,7 @@ const express = require('express');
 const cors = require('cors');
 const path = require('path');
 const session = require('express-session');
-const { initDatabase } = require('./db/database');
+const { initDatabase, getDb } = require('./db/database');
 const config = require('./config');
 const readarrSync = require('./services/readarrSync');
 
@@ -59,6 +59,8 @@ app.use('/api/users', require('./routes/users'));
 app.use('/api/library', require('./routes/library'));
 app.use('/api/goodreads', require('./routes/goodreads'));
 app.use('/api/recommendations', require('./routes/recommendations'));
+app.use('/api/kindle', require('./routes/kindle'));
+app.use('/api/content-types', require('./routes/contentTypes'));
 
 // Health check
 app.get('/api/health', (req, res) => {

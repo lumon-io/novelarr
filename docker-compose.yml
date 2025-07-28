@@ -3,11 +3,31 @@ services:
     build: .
     container_name: novelarr
     environment:
-      - READARR_URL=http://192.168.1.4:8787
-      - READARR_API_KEY=31a0ae98e92b445f982be81c8f41ac30
-      - JWT_SECRET=change-me-in-production
+      - NODE_ENV=production
+      - TZ=UTC  # Set your timezone
     volumes:
-      - ./data:/config
+      # Configuration and database
+      - ./config:/app/data
+      
+      # Media library - where organized books are stored
+      - /path/to/media/books:/media/books
+      - /path/to/media/audiobooks:/media/audiobooks
+      - /path/to/media/magazines:/media/magazines
+      - /path/to/media/comics:/media/comics
+      
+      # Downloads - where books are initially downloaded
+      - /path/to/downloads/books:/downloads/books
+      - /path/to/downloads/audiobooks:/downloads/audiobooks
+      - /path/to/downloads/magazines:/downloads/magazines
+      - /path/to/downloads/comics:/downloads/comics
     ports:
       - "8096:8096"
-    network_mode: bridge
+    restart: unless-stopped
+    networks:
+      - media-network
+
+networks:
+  media-network:
+    external: true
+    # Or create internal network:
+    # driver: bridge

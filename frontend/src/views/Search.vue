@@ -1,8 +1,11 @@
 <template>
   <div class="container mx-auto p-4">
-    <h1 class="text-3xl font-bold mb-6">Search Books</h1>
+    <h1 class="text-3xl font-bold mb-6">Search {{ getContentTypeDisplay(selectedContentType) }}</h1>
     
     <div class="mb-6 space-y-4">
+      <!-- Content Type Selection -->
+      <ContentTypeSelector v-model="selectedContentType" />
+      
       <SearchBar @search="debouncedSearch" />
       
       <!-- Source Selection -->
@@ -78,6 +81,7 @@ import { debounce } from 'lodash-es'
 import api from '../api'
 import SearchBar from '../components/SearchBar.vue'
 import BookCard from '../components/BookCard.vue'
+import ContentTypeSelector from '../components/ContentTypeSelector.vue'
 
 const results = ref([])
 const loading = ref(false)
@@ -85,6 +89,7 @@ const error = ref('')
 const searched = ref(false)
 const requestingId = ref(null)
 const searchSource = ref('all')
+const selectedContentType = ref('books')
 const sources = ref({
   readarr: true,
   jackett: false,
@@ -126,6 +131,17 @@ const search = async (query) => {
 
 const debouncedSearch = debounce(search, 500)
 
+const getContentTypeDisplay = (type) => {
+  const typeMap = {
+    'books': 'Books',
+    'audiobooks': 'Audiobooks',
+    'magazines': 'Magazines',
+    'comics': 'Comics',
+    'manga': 'Manga'
+  }
+  return typeMap[type] || 'Books'
+}
+
 const requestBook = async (book) => {
   requestingId.value = book.goodreadsId
   
@@ -134,7 +150,8 @@ const requestBook = async (book) => {
       goodreadsId: book.goodreadsId,
       title: book.title,
       author: book.author,
-      coverUrl: book.coverUrl
+      coverUrl: book.coverUrl,
+      contentType: selectedContentType.value
     })
     alert('Book requested successfully!')
   } catch (err) {
